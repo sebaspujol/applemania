@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <title>Bienvenidx a Apple Mania</title>
 </head>
 
@@ -27,6 +30,16 @@
   </div>
 
   <script src="./main.js"></script>
+  <script>
+    toastr.options = {
+      positionClass: "toast-bottom-right",
+      timeOut: 3000,
+      extendedTimeOut: 2000,
+      closeButton: true,
+      closeHtml: '<button type="button">&times;</button>',
+      progressBar: true
+    };
+  </script>
 </body>
 
 </html>

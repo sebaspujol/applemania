@@ -122,10 +122,6 @@ function mostrarMontoFinal(montoFinal, formaPago, iphone) {
   const contenedor = document.getElementById("contenedor");
   contenedor.innerHTML = "";
 
-  const mensaje = document.createElement("p");
-  mensaje.textContent = "El monto final a pagar es de $" + montoFinal + " con " + formaPago + ".";
-  contenedor.appendChild(mensaje);
-
   const formulario = document.createElement("form");
 
   const inputNombre = document.createElement("input");
@@ -170,6 +166,12 @@ function mostrarMontoFinal(montoFinal, formaPago, iphone) {
 
     guardarCompraEnHistorial(compra);
     mostrarMensaje("¡Compra realizada con éxito!");
+
+    Swal.fire({
+      title: "¡Compra exitosa!",
+      html: `El monto final a pagar es de $${montoFinal} con ${formaPago}.`,
+      icon: "success"
+    });
   });
 
   formulario.appendChild(inputNombre);
