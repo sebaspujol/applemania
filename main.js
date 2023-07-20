@@ -51,10 +51,12 @@ const iphones = [
   }
 ];
 
+const carrito = [];
+
 function darBienvenida() {
-  mostrarMensaje("¡Bienvenido! Elige una opción:");
+  mostrarMensaje("¡Bienvenido/a a Apple Mania! Elige una opción:");
   const btnMostrarProductos = document.getElementById("btnMostrarProductos");
-  btnMostrarProductos.addEventListener("click", mostrariPhones);
+  btnMostrarProductos.addEventListener("click", mostrarOpcionesInicio);
   const btnBuscarPorNombre = document.getElementById("btnBuscarPorNombre");
   btnBuscarPorNombre.addEventListener("click", buscarPorNombre);
   const btnFiltrarPorPrecio = document.getElementById("btnFiltrarPorPrecio");
@@ -65,12 +67,13 @@ function darBienvenida() {
 
 function mostrarMensaje(mensaje) {
   const contenedor = document.getElementById("contenedor");
+  contenedor.innerHTML = ""; // Limpiar el contenido previo
   const parrafo = document.createElement("p");
   parrafo.textContent = mensaje;
   contenedor.appendChild(parrafo);
 }
 
-function mostrariPhones() {
+function mostrarOpcionesInicio() {
   const contenedor = document.getElementById("contenedor");
   contenedor.innerHTML = "";
 
@@ -99,28 +102,107 @@ function mostrariPhones() {
 }
 
 function preguntarFormaPago(iphone) {
+  Swal.fire({
+    title: "¿Agregar al carrito o finalizar la compra?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Agregar al carrito y seguir comprando",
+    cancelButtonText: "Agregar al carrito y finalizar la compra"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      agregarAlCarrito(iphone);
+      mostrarOpcionesInicio();
+    } else {
+      agregarAlCarrito(iphone);
+      mostrarCarrito();
+    }
+  });
+}
+function agregarAlCarrito(iphone) {
+  carrito.push(iphone);
+}
+function mostrarCarrito() {
+  const contenedor = document.getElementById("contenedor");
+  contenedor.innerHTML = "";
+
+  if (carrito.length === 0) {
+    mostrarMensaje("No hay productos en el carrito.");
+    return;
+  }
+
+  mostrarMensaje("Carrito de compras:");
+
+  carrito.forEach((iphone, index) => {
+    const parrafo = document.createElement("p");
+    parrafo.textContent = `
+      Producto: ${iphone.nombre}
+      Precio: $${iphone.precio}
+    `;
+
+    const btnEliminar = document.createElement("button");
+    btnEliminar.textContent = "Eliminar";
+    btnEliminar.addEventListener("click", () => {
+      eliminarProducto(index);
+    });
+
+    parrafo.appendChild(btnEliminar);
+    contenedor.appendChild(parrafo);
+  });
+
+  const btnFinalizarCompra = document.createElement("button");
+  btnFinalizarCompra.textContent = "Finalizar Compra";
+  btnFinalizarCompra.addEventListener("click", () => {
+    mostrarOpcionesPago();
+  });
+
+  const btnCancelarCompra = document.createElement("button");
+  btnCancelarCompra.textContent = "Cancelar Compra";
+  btnCancelarCompra.addEventListener("click", () => {
+    cancelarCompra();
+  });
+
+  contenedor.appendChild(btnFinalizarCompra);
+  contenedor.appendChild(btnCancelarCompra);
+}
+
+function eliminarProducto(index) {
+  carrito.splice(index, 1);
+  mostrarCarrito();
+}
+
+function cancelarCompra() {
+  carrito.length = 0;
+  mostrarOpcionesInicio();
+}
+
+function mostrarOpcionesPago() {
   const contenedor = document.getElementById("contenedor");
   contenedor.innerHTML = "";
 
   const btnEfectivo = document.createElement("button");
   btnEfectivo.textContent = "Pagar en Efectivo";
   btnEfectivo.addEventListener("click", () => {
-    mostrarMontoFinal(iphone.precio, "Efectivo", iphone);
+    mostrarMontoFinal("Efectivo");
   });
 
   const btnTarjeta = document.createElement("button");
   btnTarjeta.textContent = "Pagar con Tarjeta";
   btnTarjeta.addEventListener("click", () => {
-    mostrarMontoFinal(iphone.precio, "Tarjeta", iphone);
+    mostrarMontoFinal("Tarjeta");
   });
 
   contenedor.appendChild(btnEfectivo);
   contenedor.appendChild(btnTarjeta);
 }
 
-function mostrarMontoFinal(montoFinal, formaPago, iphone) {
+function mostrarMontoFinal(formaPago) {
   const contenedor = document.getElementById("contenedor");
   contenedor.innerHTML = "";
+
+  let montoFinal = 0;
+  carrito.forEach((iphone) => {
+    montoFinal += iphone.precio;
+  });
 
   const formulario = document.createElement("form");
 
@@ -155,8 +237,8 @@ function mostrarMontoFinal(montoFinal, formaPago, iphone) {
 
     const compra = {
       fecha: new Date().toLocaleDateString(),
-      producto: iphone.nombre,
-      precio: montoFinal,
+      productos: carrito,
+      precioTotal: montoFinal,
       formaPago: formaPago,
       nombre: nombre,
       apellido: apellido,
@@ -179,7 +261,6 @@ function mostrarMontoFinal(montoFinal, formaPago, iphone) {
   formulario.appendChild(inputEmail);
   formulario.appendChild(inputTelefono);
   formulario.appendChild(btnConfirmar);
-
   contenedor.appendChild(formulario);
 }
 
@@ -202,25 +283,18 @@ function mostrarHistorialCompras() {
   const contenedor = document.getElementById("contenedor");
   contenedor.innerHTML = "";
 
-  const historialCompras = obtenerHistorialCompras();
-  if (historialCompras.length === 0) {
-    mostrarMensaje("No hay compras en el historial.");
+  if (carrito.length === 0) {
+    mostrarMensaje("No hay productos en el carrito.");
     return;
   }
 
-  mostrarMensaje("Historial de Compras:");
+  mostrarMensaje("Productos en el carrito:");
 
-  historialCompras.forEach((compra) => {
+  carrito.forEach((iphone) => {
     const parrafo = document.createElement("p");
     parrafo.textContent = `
-      Fecha: ${compra.fecha}
-      Producto: ${compra.producto}
-      Precio: $${compra.precio}
-      Forma de Pago: ${compra.formaPago}
-      Nombre: ${compra.nombre}
-      Apellido: ${compra.apellido}
-      Email: ${compra.email}
-      Teléfono: ${compra.telefono}
+      Producto: ${iphone.nombre}
+      Precio: $${iphone.precio}
     `;
     contenedor.appendChild(parrafo);
   });
